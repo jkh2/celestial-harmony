@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Harmony: The Music of the Spheres</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #0a0a2e 0%, #000000 100%);
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            color: #ffffff;
+        }
+        
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+            z-index: 10;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 25px;
+            border: 2px solid #4169e1;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 90vw;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4169e1, #6495ed);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: linear-gradient(45deg, #6495ed, #87ceeb);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(100, 149, 237, 0.5);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100px;
+            height: 5px;
+            border-radius: 5px;
+            background: #4169e1;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .title {
+            color: #ffd700;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .harmony-info {
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin: 5px 0;
+        }
+        
+        .note-display {
+            color: #87ceeb;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin: 10px 0;
+            text-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+        }
+        
+        #frequency-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffd700;
+            font-family: 'Courier New', monospace;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="harmonyCanvas"></canvas>
+        
+        <div id="info-panel">
+            <div class="title">Celestial Harmony</div>
+            <div class="harmony-info">
+                <strong>Active Resonances:</strong>
+                <div id="resonance-count">0</div>
+            </div>
+            <div class="harmony-info">
+                <strong>Dominant Frequency:</strong>
+                <div class="note-display" id="current-note">A4 (440 Hz)</div>
+            </div>
+            <div class="harmony-info">
+                <strong>Harmonic Complexity:</strong>
+                <div id="complexity">Simple</div>
+            </div>
+            <div class="harmony-info">
+                <strong>Gravitational Field:</strong>
+                <div id="field-strength">Moderate</div>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <button onclick="toggleSystem()">Pause/Play</button>
+            <button onclick="resetSystem()">Reset</button>
+            <button onclick="addCelestialBody()">Add Body</button>
+            
+            <div style="display: flex; flex-direction: column; gap: 5px; margin: 0 10px;">
+                <label style="color: white; font-size: 0.9em;">Speed:</label>
+                <input type="range" min="0.1" max="3" value="1" step="0.1" class="slider" id="speedSlider">
+                <span id="speedValue" style="color: #87ceeb; font-size: 0.8em;">1.0x</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 5px; margin: 0 10px;">
+                <label style="color: white; font-size: 0.9em;">Gravity:</label>
+                <input type="range" min="0.01" max="0.5" value="0.1" step="0.01" class="slider" id="gravitySlider">
+                <span id="gravityValue" style="color: #87ceeb; font-size: 0.8em;">0.10</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 5px; margin: 0 10px;">
+                <label style="color: white; font-size: 0.9em;">Base Freq:</label>
+                <input type="range" min="110" max="880" value="220" step="10" class="slider" id="freqSlider">
+                <span id="freqValue" style="color: #87ceeb; font-size: 0.8em;">220 Hz</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 5px; margin: 0 10px;">
+                <label style="color: white; font-size: 0.9em;">Resonance:</label>
+                <input type="range" min="0.1" max="2.0" value="0.7" step="0.1" class="slider" id="resonanceSlider">
+                <span id="resonanceValue" style="color: #87ceeb; font-size: 0.8em;">0.7</span>
+            </div>
+            
+            <button onclick="toggleSound()">🔊 Sound OFF</button>
+        </div>
+        
+        <div id="frequency-display">
+            <div>Real-time Harmonics:</div>
+            <div id="freq-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Celestial Harmony System
+        class CelestialBody {
+            constructor(x, y, mass, velocity, color, baseFreq) {
+                this.x = x;
+                this.y = y;
+                this.vx = velocity.x;
+                this.vy = velocity.y;
+                this.mass = mass;
+                this.radius = Math.sqrt(mass) * 2;
+                this.color = color;
+                this.baseFreq = baseFreq;
+                this.trail = [];
+                this.maxTrailLength = 200;
+                this.harmonics = [];
+            }
+            
+            update(bodies, dt) {
+                let fx = 0, fy = 0;
+                
+                // Calculate gravitational forces
+                for (let other of bodies) {
+                    if (other === this) continue;
+                    
+                    let dx = other.x - this.x;
+                    let dy = other.y - this.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance > this.radius + other.radius) {
+                        let force = (G * this.mass * other.mass) / (distance * distance);
+                        fx += (force * dx / distance) / this.mass;
+                        fy += (force * dy / distance) / this.mass;
+                        
+                        // Calculate harmonic resonance
+                        let resonanceFreq = this.baseFreq * (1 + Math.sin(distance * 0.01) * 0.1);
+                        this.harmonics.push({
+                            freq: resonanceFreq,
+                            strength: force / (this.mass * 1000),
+                            distance: distance
+                        });
+                    }
+                }
+                
+                // Update velocity and position
+                this.vx += fx * dt;
+                this.vy += fy * dt;
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                
+                // Add to trail
+                this.trail.push({x: this.x, y: this.y, alpha: 1.0});
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                // Fade trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    this.trail[i].alpha = (i / this.trail.length) * 0.8;
+                }
+                
+                // Clear harmonics for next frame
+                this.harmonics = [];
+            }
+            
+            draw(ctx) {
+                // Draw trail with harmonic colors
+                for (let i = 1; i < this.trail.length; i++) {
+                    let point = this.trail[i];
+                    let prevPoint = this.trail[i-1];
+                    
+                    let trailColor = this.color;
+                    let alpha = point.alpha;
+                    
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = trailColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(prevPoint.x, prevPoint.y);
+                    ctx.lineTo(point.x, point.y);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                
+                // Draw body with pulsing effect based on harmonic activity
+                let harmonicIntensity = this.harmonics.reduce((sum, h) => sum + h.strength, 0);
+                let pulseScale = 1 + Math.sin(time * 5) * 0.2 * harmonicIntensity;
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.scale(pulseScale, pulseScale);
+                
+                // Outer glow
+                let gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 3);
+                let colorWithAlpha1 = this.color.replace('hsl(', 'hsla(').replace(')', ', 0.5)');
+                let colorWithAlpha2 = this.color.replace('hsl(', 'hsla(').replace(')', ', 0)');
+                gradient.addColorStop(0, colorWithAlpha1);
+                gradient.addColorStop(1, colorWithAlpha2);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius * 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Main body
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                ctx.beginPath();
+                ctx.arc(-this.radius * 0.3, -this.radius * 0.3, this.radius * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+                
+                // Draw harmonic field lines
+                this.drawHarmonicField(ctx);
+            }
+            
+            drawHarmonicField(ctx) {
+                for (let harmonic of this.harmonics) {
+                    let intensity = Math.min(harmonic.strength * 1000, 1);
+                    if (intensity > 0.1) {
+                        ctx.save();
+                        ctx.globalAlpha = intensity * 0.3;
+                        ctx.strokeStyle = '#ffd700';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([5, 10]);
+                        
+                        // Draw resonance waves
+                        for (let i = 0; i < 3; i++) {
+                            ctx.beginPath();
+                            ctx.arc(this.x, this.y, this.radius + i * 20, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+                        
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+        
+        // System variables
+        let canvas, ctx;
+        let width, height;
+        let celestialBodies = [];
+        let time = 0;
+        let running = true;
+        let timeSpeed = 1;
+        let G = 0.1; // Gravitational constant
+        let baseFrequency = 220; // Fundamental frequency
+        let resonanceThreshold = 0.7; // Sensitivity for harmonic connections
+        let soundEnabled = false;
+        
+        // Audio synthesis variables
+        let audioContext;
+        let masterGain;
+        let oscillators = new Map();
+        let isAudioInitialized = false;
+        
+        // Initialize the system
+        function init() {
+            canvas = document.getElementById('harmonyCanvas');
+            ctx = canvas.getContext('2d');
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Create initial celestial bodies with musical relationships
+            createInitialSystem();
+            
+            // Set up controls
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                timeSpeed = parseFloat(e.target.value);
+                document.getElementById('speedValue').textContent = timeSpeed.toFixed(1) + 'x';
+            });
+            
+            document.getElementById('gravitySlider').addEventListener('input', (e) => {
+                G = parseFloat(e.target.value);
+                document.getElementById('gravityValue').textContent = G.toFixed(2);
+                document.getElementById('field-strength').textContent = 
+                    G < 0.05 ? 'Weak' : G < 0.15 ? 'Moderate' : 'Strong';
+            });
+            
+            document.getElementById('freqSlider').addEventListener('input', (e) => {
+                baseFrequency = parseFloat(e.target.value);
+                document.getElementById('freqValue').textContent = baseFrequency + ' Hz';
+                
+                // Update all existing bodies' base frequencies proportionally
+                const ratio = baseFrequency / 220; // Original base frequency
+                for (let body of celestialBodies) {
+                    body.baseFreq = (body.baseFreq / (body.baseFreq / baseFrequency > 1 ? 
+                        body.baseFreq / baseFrequency : baseFrequency / body.baseFreq)) * baseFrequency;
+                }
+                
+                // Restart audio with new frequencies
+                if (soundEnabled) {
+                    stopAudioSynthesis();
+                    startAudioSynthesis();
+                }
+            });
+            
+            document.getElementById('resonanceSlider').addEventListener('input', (e) => {
+                resonanceThreshold = parseFloat(e.target.value);
+                document.getElementById('resonanceValue').textContent = resonanceThreshold.toFixed(1);
+            });
+            
+            // Start the animation
+            animate();
+        }
+        
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        function createInitialSystem() {
+            celestialBodies = [];
+            
+            // Central massive body (fundamental tone)
+            celestialBodies.push(new CelestialBody(
+                width/2, height/2, 500, {x: 0, y: 0}, '#ffd700', baseFrequency
+            ));
+            
+            // Orbiting bodies creating harmonic series
+            const harmonicRatios = [3/2, 4/3, 5/4, 6/5]; // Perfect fifth, fourth, major third, minor third
+            
+            for (let i = 0; i < 4; i++) {
+                let angle = (i / 4) * Math.PI * 2;
+                let distance = 150 + i * 50;
+                let x = width/2 + Math.cos(angle) * distance;
+                let y = height/2 + Math.sin(angle) * distance;
+                
+                // Orbital velocity for stable orbit
+                let orbitalSpeed = Math.sqrt(G * 500 / distance) * 0.8;
+                let vx = -Math.sin(angle) * orbitalSpeed;
+                let vy = Math.cos(angle) * orbitalSpeed;
+                
+                let color = `hsl(${60 + i * 60}, 80%, 60%)`;
+                let frequency = baseFrequency * harmonicRatios[i];
+                
+                celestialBodies.push(new CelestialBody(
+                    x, y, 50 + i * 20, {x: vx, y: vy}, color, frequency
+                ));
+            }
+        }
+        
+        function animate() {
+            if (running) {
+                update();
+            }
+            draw();
+            requestAnimationFrame(animate);
+        }
+        
+        function update() {
+            time += 0.016 * timeSpeed; // ~60fps
+            
+            // Update all celestial bodies
+            for (let body of celestialBodies) {
+                body.update(celestialBodies, 0.016 * timeSpeed);
+            }
+            
+            // Update audio synthesis
+            updateAudioSynthesis();
+            
+            // Update UI
+            updateHarmonyInfo();
+        }
+        
+        function draw() {
+            // Clear with slight persistence for trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw background star field
+            drawStarField();
+            
+            // Draw gravitational field visualization
+            drawGravitationalField();
+            
+            // Draw celestial bodies
+            for (let body of celestialBodies) {
+                body.draw(ctx);
+            }
+            
+            // Draw harmonic connections
+            drawHarmonicConnections();
+        }
+        
+        function drawStarField() {
+            ctx.fillStyle = '#ffffff20';
+            for (let i = 0; i < 100; i++) {
+                let x = (Math.sin(i * 0.1 + time * 0.1) * 0.5 + 0.5) * width;
+                let y = (Math.cos(i * 0.13 + time * 0.07) * 0.5 + 0.5) * height;
+                let brightness = Math.sin(i + time) * 0.5 + 0.5;
+                
+                ctx.save();
+                ctx.globalAlpha = brightness * 0.3;
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        function drawGravitationalField() {
+            const gridSize = 40;
+            ctx.strokeStyle = '#4169e120';
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += gridSize) {
+                for (let y = 0; y < height; y += gridSize) {
+                    let fieldX = 0, fieldY = 0;
+                    
+                    for (let body of celestialBodies) {
+                        let dx = body.x - x;
+                        let dy = body.y - y;
+                        let distance = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (distance > 0) {
+                            let force = (body.mass * 0.1) / (distance * distance);
+                            fieldX += (force * dx / distance);
+                            fieldY += (force * dy / distance);
+                        }
+                    }
+                    
+                    let fieldMagnitude = Math.sqrt(fieldX*fieldX + fieldY*fieldY);
+                    if (fieldMagnitude > 0.01) {
+                        ctx.save();
+                        ctx.globalAlpha = Math.min(fieldMagnitude * 0.5, 0.3);
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + fieldX * 10, y + fieldY * 10);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+        
+        function drawHarmonicConnections() {
+            ctx.strokeStyle = '#ffd70040';
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < celestialBodies.length; i++) {
+                for (let j = i + 1; j < celestialBodies.length; j++) {
+                    let body1 = celestialBodies[i];
+                    let body2 = celestialBodies[j];
+                    
+                    let dx = body2.x - body1.x;
+                    let dy = body2.y - body1.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    // Check for harmonic resonance (user-adjustable threshold)
+                    let freqRatio = body1.baseFreq / body2.baseFreq;
+                    let harmonicStrength = 1 / (1 + Math.abs(freqRatio % 1 - 0.5) * 4);
+                    
+                    if (harmonicStrength > resonanceThreshold) {
+                        ctx.save();
+                        ctx.globalAlpha = harmonicStrength * 0.5;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(body1.x, body1.y);
+                        ctx.lineTo(body2.x, body2.y);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+        
+        function updateHarmonyInfo() {
+            // Count active resonances (using current threshold)
+            let resonanceCount = 0;
+            let totalComplexity = 0;
+            let dominantFreq = baseFrequency;
+            let maxHarmonicStrength = 0;
+            
+            // Count harmonic connections based on current threshold
+            for (let i = 0; i < celestialBodies.length; i++) {
+                for (let j = i + 1; j < celestialBodies.length; j++) {
+                    let body1 = celestialBodies[i];
+                    let body2 = celestialBodies[j];
+                    let freqRatio = body1.baseFreq / body2.baseFreq;
+                    let harmonicStrength = 1 / (1 + Math.abs(freqRatio % 1 - 0.5) * 4);
+                    
+                    if (harmonicStrength > resonanceThreshold) {
+                        resonanceCount++;
+                        if (harmonicStrength > maxHarmonicStrength) {
+                            maxHarmonicStrength = harmonicStrength;
+                            dominantFreq = Math.max(body1.baseFreq, body2.baseFreq);
+                        }
+                    }
+                }
+                
+                // Add individual body harmonic activity
+                for (let harmonic of celestialBodies[i].harmonics) {
+                    totalComplexity += harmonic.strength;
+                }
+            }
+            
+            document.getElementById('resonance-count').textContent = resonanceCount;
+            document.getElementById('current-note').textContent = frequencyToNote(dominantFreq);
+            document.getElementById('complexity').textContent = 
+                totalComplexity < 0.1 ? 'Simple' : 
+                totalComplexity < 0.5 ? 'Moderate' : 'Complex';
+            
+            // Update frequency display
+            updateFrequencyDisplay();
+        }
+        
+        function frequencyToNote(freq) {
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const A4 = 440;
+            const semitones = Math.round(12 * Math.log2(freq / A4));
+            const octave = Math.floor(semitones / 12) + 4;
+            const noteIndex = ((semitones % 12) + 12) % 12;
+            return `${noteNames[noteIndex]}${octave} (${Math.round(freq)}Hz)`;
+        }
+        
+        function updateFrequencyDisplay() {
+            let freqList = document.getElementById('freq-list');
+            let frequencies = [];
+            
+            for (let body of celestialBodies) {
+                for (let harmonic of body.harmonics) {
+                    if (harmonic.strength > 0.01) {
+                        frequencies.push(Math.round(harmonic.freq));
+                    }
+                }
+            }
+            
+            frequencies.sort((a, b) => b - a);
+            freqList.innerHTML = frequencies.slice(0, 5).join(' Hz<br>') + (frequencies.length > 0 ? ' Hz' : '');
+        }
+        
+        // Control functions
+        function toggleSystem() {
+            running = !running;
+        }
+        
+        function resetSystem() {
+            // Stop current audio
+            stopAudioSynthesis();
+            
+            createInitialSystem();
+            time = 0;
+            
+            // Restart audio if enabled
+            if (soundEnabled) {
+                startAudioSynthesis();
+            }
+        }
+        
+        function addCelestialBody() {
+            let x = Math.random() * width;
+            let y = Math.random() * height;
+            let mass = 30 + Math.random() * 70;
+            let vx = (Math.random() - 0.5) * 2;
+            let vy = (Math.random() - 0.5) * 2;
+            let hue = Math.random() * 360;
+            let color = `hsl(${hue}, 70%, 60%)`;
+            // New bodies get frequencies based on current base frequency
+            let freq = baseFrequency * Math.pow(2, Math.random() * 2);
+            
+            const newBody = new CelestialBody(x, y, mass, {x: vx, y: vy}, color, freq);
+            celestialBodies.push(newBody);
+            
+            // Create audio for new body if sound is enabled
+            if (soundEnabled && isAudioInitialized) {
+                createOscillatorForBody(newBody);
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            
+            if (soundEnabled && !isAudioInitialized) {
+                initializeAudio();
+            }
+            
+            if (soundEnabled) {
+                startAudioSynthesis();
+                document.querySelector('button[onclick="toggleSound()"]').textContent = '🔊 Sound ON';
+            } else {
+                stopAudioSynthesis();
+                document.querySelector('button[onclick="toggleSound()"]').textContent = '🔊 Sound OFF';
+            }
+        }
+        
+        function initializeAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioContext.createGain();
+                masterGain.connect(audioContext.destination);
+                masterGain.gain.setValueAtTime(0.1, audioContext.currentTime); // Gentle volume
+                isAudioInitialized = true;
+            } catch (error) {
+                console.warn('Audio not supported in this browser:', error);
+                soundEnabled = false;
+            }
+        }
+        
+        function startAudioSynthesis() {
+            if (!isAudioInitialized || !soundEnabled) return;
+            
+            // Resume audio context if suspended (browser requirement)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            // Create oscillators for each celestial body
+            for (let body of celestialBodies) {
+                createOscillatorForBody(body);
+            }
+        }
+        
+        function stopAudioSynthesis() {
+            // Stop all oscillators
+            for (let [bodyId, oscillator] of oscillators) {
+                try {
+                    oscillator.osc.stop();
+                    oscillator.gain.disconnect();
+                } catch (e) {
+                    // Oscillator may already be stopped
+                }
+            }
+            oscillators.clear();
+        }
+        
+        function createOscillatorForBody(body) {
+            if (!isAudioInitialized || !soundEnabled) return;
+            
+            try {
+                // Create oscillator and gain
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                // Configure oscillator
+                osc.type = 'sine'; // Pure tone for celestial harmony
+                osc.frequency.setValueAtTime(body.baseFreq, audioContext.currentTime);
+                
+                // Configure filter for warmth
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+                filter.Q.setValueAtTime(1, audioContext.currentTime);
+                
+                // Configure gain (volume based on mass)
+                const volume = Math.min(body.mass / 1000, 0.3);
+                gain.gain.setValueAtTime(0, audioContext.currentTime);
+                gain.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.1);
+                
+                // Connect audio graph
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+                
+                // Start oscillator
+                osc.start();
+                
+                // Store reference
+                oscillators.set(body, { osc, gain, filter, baseVolume: volume });
+                
+            } catch (error) {
+                console.warn('Error creating oscillator:', error);
+            }
+        }
+        
+        function updateAudioSynthesis() {
+            if (!isAudioInitialized || !soundEnabled || oscillators.size === 0) return;
+            
+            try {
+                for (let body of celestialBodies) {
+                    const audioData = oscillators.get(body);
+                    if (!audioData) continue;
+                    
+                    // Calculate harmonic intensity
+                    let harmonicIntensity = 0;
+                    let dominantFreq = body.baseFreq;
+                    
+                    for (let harmonic of body.harmonics) {
+                        harmonicIntensity += harmonic.strength;
+                        if (harmonic.strength > 0.1) {
+                            dominantFreq = harmonic.freq;
+                        }
+                    }
+                    
+                    // Smooth frequency transitions
+                    const currentTime = audioContext.currentTime;
+                    audioData.osc.frequency.linearRampToValueAtTime(
+                        dominantFreq, 
+                        currentTime + 0.1
+                    );
+                    
+                    // Dynamic volume based on harmonic activity
+                    const dynamicVolume = audioData.baseVolume * (0.3 + harmonicIntensity * 0.7);
+                    audioData.gain.gain.linearRampToValueAtTime(
+                        Math.min(dynamicVolume, 0.4), 
+                        currentTime + 0.1
+                    );
+                    
+                    // Filter modulation for movement
+                    const filterFreq = 1000 + harmonicIntensity * 1000 + Math.sin(time * 2) * 200;
+                    audioData.filter.frequency.linearRampToValueAtTime(
+                        filterFreq, 
+                        currentTime + 0.1
+                    );
+                }
+            } catch (error) {
+                console.warn('Error updating audio:', error);
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
